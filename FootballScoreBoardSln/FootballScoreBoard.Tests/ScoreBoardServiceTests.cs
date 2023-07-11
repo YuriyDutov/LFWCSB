@@ -11,15 +11,14 @@ namespace FootballScoreBoard.Tests
 {
     public class ScoreBoardServiceTests
     {
+        private static readonly IScoreBoardRepository Repository = new ScoreBoardRepository();
+        private readonly IScoreBoardService _scoreBoardService = new ScoreBoardService(Repository);
+
         [Fact]
         public void GetCurrentFootballMatches_GetsCurrentFootballMatches_ReturnListOfFootballMatchesOrderedByTotalScoreAndInProgressIsTrue()
         { 
-            //Arrange
-            var scoreBoardRepository = new ScoreBoardRepository();
-            var scoreBoardService = new ScoreBoardService(scoreBoardRepository);
-
             //Act
-            List<FootballMatch> result = scoreBoardService.GetCurrentFootballMatches();
+            List<FootballMatch> result = _scoreBoardService.GetCurrentFootballMatches();
 
             //Assert
             result.Should().BeOfType(typeof(List<FootballMatch>));
@@ -31,10 +30,8 @@ namespace FootballScoreBoard.Tests
         public void StartFootballMatch_CreatesFootballMatchEntityWithInProgressIsTrue_ReturnTrue()
         { 
             //Arrange
-            var scoreBoardRepository = new ScoreBoardRepository();
-            var scoreBoardService = new ScoreBoardService(scoreBoardRepository);
-            var countOfMatches = scoreBoardService.GetCurrentFootballMatches().Count;
-            var id = scoreBoardService.GetCurrentFootballMatches().Max(m => m.Id) + 1;
+            var countOfMatches = _scoreBoardService.GetCurrentFootballMatches().Count;
+            var id = _scoreBoardService.GetCurrentFootballMatches().Max(m => m.Id) + 1;
             var footballMatch = new FootballMatch
             {
                 HomeTeam = "England",
@@ -44,8 +41,8 @@ namespace FootballScoreBoard.Tests
             };
 
             //Act
-            var result = scoreBoardService.StartNewMatch(footballMatch);
-            var expectedCountOfMatches = scoreBoardService.GetCurrentFootballMatches().Count;
+            var result = _scoreBoardService.StartNewMatch(footballMatch);
+            var expectedCountOfMatches = _scoreBoardService.GetCurrentFootballMatches().Count;
 
             //Assert
             result.Should().Be(true);
@@ -56,14 +53,12 @@ namespace FootballScoreBoard.Tests
         public void FinishFootballMatch_UpdatesFootballMatchEntityWithInProgressIsFalse_ReturnTrue()
         { 
             //Arrange
-            var scoreBoardRepository = new ScoreBoardRepository();
-            var scoreBoardService = new ScoreBoardService(scoreBoardRepository);
-            var countOfMatches = scoreBoardService.GetCurrentFootballMatches().Count;
+            var countOfMatches = _scoreBoardService.GetCurrentFootballMatches().Count;
             var id = 1;
 
             //Act
-            var result = scoreBoardService.EndCurrentMatch(id);
-            var expectedCountOfMatches = scoreBoardService.GetCurrentFootballMatches().Count;
+            var result = _scoreBoardService.EndCurrentMatch(id);
+            var expectedCountOfMatches = _scoreBoardService.GetCurrentFootballMatches().Count;
 
             //Assert
             result.Should().Be(true);
@@ -75,8 +70,6 @@ namespace FootballScoreBoard.Tests
         public void UpdateScore_UpdatesFootballMatchEntityScore_ReturnTrue()
         { 
             //Arrange
-            var scoreBoardRepository = new ScoreBoardRepository();
-            var scoreBoardService = new ScoreBoardService(scoreBoardRepository);
             var match = new FootballMatch
             {
                 Id = 5,
@@ -90,8 +83,10 @@ namespace FootballScoreBoard.Tests
 
             //Act
             match.AwayTeamScore++;
-            var result = scoreBoardService.UpdateMatchScore(match.Id, match.HomeTeamScore, match.AwayTeamScore);
-            var expectedTotalScore = scoreBoardService.GetCurrentFootballMatches().First(i => i.Id == match.Id).TotalScore;
+            var result = _scoreBoardService.UpdateMatchScore(match.Id, match.HomeTeamScore, match.AwayTeamScore);
+            var expectedTotalScore = _scoreBoardService.GetCurrentFootballMatches()
+                .First(i => i.Id == match.Id)
+                .TotalScore;
 
             //Assert
             result.Should().Be(true);
