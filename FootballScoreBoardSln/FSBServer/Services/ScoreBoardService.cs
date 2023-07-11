@@ -27,17 +27,33 @@ namespace FSBServer.Services
 
         public bool StartNewMatch(FootballMatch footballMatch)
         {
-            throw new NotImplementedException();
+            return _repository.Create(footballMatch);
         }
 
         public bool EndCurrentMatch(int id)
         {
-            throw new NotImplementedException();
+            var footballMatch = _repository.Get().FirstOrDefault(x => x.Id == id);
+            if (footballMatch == null)
+            {
+                return false;
+            }
+            footballMatch.InProgress = false;
+
+            return _repository.Update(footballMatch);
         }
 
         public bool UpdateMatchScore(int id, int homeTeamScore, int awayTeamScore)
         {
-            throw new NotImplementedException();
+            var footballMatch = _repository.Get().FirstOrDefault(x => x.Id == id);
+            if (footballMatch == null)
+            {
+                return false;
+            }
+            footballMatch.HomeTeamScore = homeTeamScore;
+            footballMatch.AwayTeamScore = awayTeamScore;
+            footballMatch.TotalScore = homeTeamScore + awayTeamScore;
+
+            return _repository.Update(footballMatch);
         }
     }
 }

@@ -89,6 +89,7 @@ namespace FootballScoreBoard.Tests
             };
 
             //Act
+            match.AwayTeamScore++;
             var result = scoreBoardService.UpdateMatchScore(match.Id, match.HomeTeamScore, match.AwayTeamScore);
             var expectedTotalScore = scoreBoardService.GetCurrentFootballMatches().First(i => i.Id == match.Id).TotalScore;
 

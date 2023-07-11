@@ -5,14 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using FSBServer.Entities;
 
-namespace FSBServer.Repositories
+namespace FSBServer.DataSources
 {
-    public interface IScoreBoardRepository
+    public interface IDataSource
     {
-        List<FootballMatch> Get();
+        List<FootballMatch> GetData();
 
-        bool Create(FootballMatch footballMatch);
+        bool Add(FootballMatch footballMatch);
 
         bool Update(FootballMatch footballMatch);
+
+        bool Delete(int id);
     }
 }
