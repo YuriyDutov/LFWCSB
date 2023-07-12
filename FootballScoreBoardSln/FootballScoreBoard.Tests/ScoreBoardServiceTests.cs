@@ -49,12 +49,13 @@ namespace FootballScoreBoard.Tests
             expectedCountOfMatches.Should().BeGreaterThan(countOfMatches);
         }
 
-        [Fact]
-        public void FinishFootballMatch_UpdatesFootballMatchEntityWithInProgressIsFalse_ReturnTrue()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void FinishFootballMatch_UpdatesFootballMatchEntityWithInProgressIsFalse_ReturnTrueIfEntityFound(int id)
         { 
             //Arrange
             var countOfMatches = _scoreBoardService.GetCurrentFootballMatches().Count;
-            var id = 1;
 
             //Act
             var result = _scoreBoardService.EndCurrentMatch(id);
@@ -66,31 +67,57 @@ namespace FootballScoreBoard.Tests
 
         }
 
-        [Fact]
-        public void UpdateScore_UpdatesFootballMatchEntityScore_ReturnTrue()
+        [Theory]
+        [InlineData(10)]
+        [InlineData(20)]
+        public void FinishFootballMatch_UpdatesFootballMatchEntityWithInProgressIsFalse_ReturnFalseIfEntityNotFound(int id)
         { 
-            //Arrange
-            var match = new FootballMatch
-            {
-                Id = 5,
-                HomeTeam = "Argentina",
-                AwayTeam = "Australia",
-                HomeTeamScore = 3,
-                AwayTeamScore = 1,
-                InProgress = true,
-                TotalScore = 4
-            };
-
             //Act
-            match.AwayTeamScore++;
-            var result = _scoreBoardService.UpdateMatchScore(match.Id, match.HomeTeamScore, match.AwayTeamScore);
-            var expectedTotalScore = _scoreBoardService.GetCurrentFootballMatches()
-                .First(i => i.Id == match.Id)
-                .TotalScore;
+            var result = _scoreBoardService.EndCurrentMatch(id);
 
             //Assert
+            result.Should().Be(false);
+        }
+
+        [Theory]
+        [InlineData(3, 3, 2)]
+        [InlineData(5, 2, 3)]
+        public void UpdateScore_UpdatesFootballMatchEntityScore_ReturnTrueIfEntityFound(int id, int homeTeamScore, int awayTeamScore)
+        {
+            //Act
+            var result = _scoreBoardService.UpdateMatchScore(id, homeTeamScore, awayTeamScore);
+            
+            //Assert
             result.Should().Be(true);
-            expectedTotalScore.Should().BeGreaterThan(match.TotalScore);
+        }
+
+        [Theory]
+        [InlineData(10, 3, 2)]
+        [InlineData(20, 2, 3)]
+        public void UpdateScore_UpdatesFootballMatchEntityScore_ReturnFalseIfEntityFound(int id, int homeTeamScore, int awayTeamScore)
+        {
+            //Act
+            var result = _scoreBoardService.UpdateMatchScore(id, homeTeamScore, awayTeamScore);
+
+            //Assert
+            result.Should().Be(false);
+        }
+
+        [Theory]
+        [InlineData(3, 3, 2)]
+        [InlineData(5, 2, 3)]
+        public void UpdateScore_UpdatesFootballMatchEntityScore_TotalScoreMustChanged(int id, int homeTeamScore, int awayTeamScore)
+        {
+            //Arrange
+            var totalScore = homeTeamScore + awayTeamScore;
+
+            //Act
+            _scoreBoardService.UpdateMatchScore(id, homeTeamScore, awayTeamScore);
+            var expectedTotalScore = _scoreBoardService.GetCurrentFootballMatches()
+                .First(i => i.Id == id).TotalScore;
+
+            //Assert
+            expectedTotalScore.Should().Be(totalScore);
         }
     }
 }
