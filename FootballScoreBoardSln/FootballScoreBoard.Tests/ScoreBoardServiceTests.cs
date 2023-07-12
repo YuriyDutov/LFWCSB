@@ -31,12 +31,11 @@ namespace FootballScoreBoard.Tests
         { 
             //Arrange
             var countOfMatches = _scoreBoardService.GetCurrentFootballMatches().Count;
-            var id = _scoreBoardService.GetCurrentFootballMatches().Max(m => m.Id) + 1;
             var footballMatch = new FootballMatch
             {
+                Id = 6,
                 HomeTeam = "England",
                 AwayTeam = "Wales",
-                Id = id,
                 InProgress = true
             };
 
